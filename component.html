@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>菜谱</title>
+	<style>
+	*{
+		margin:0;
+		padding: 0;
+		list-style: none;
+		box-sizing: border-box;
+	}
+  #app{
+  	width: 100%;
+  	display: flex;
+  	flex-direction:row;
+  	justify-content:space-around;
+
+  }
+  .first,.second,.third{
+  	padding: 10px;
+  	text-align: center;
+  	height: 600px;
+  		flex:1;
+
+  }
+  h3{
+  	line-height:60px;
+  	border-radius: 10px;
+  	color: white;
+  }
+  .title1{
+  	 	background: #E7C5AD;
+  	border: 3px solid #CD8C5B;
+  }
+  .title2{
+  	background: #B7ADB2;
+  	border: 3px solid #745F6B;
+  }
+  .title3{
+  	   	background: #A5ACD7;
+  	border: 3px solid #4C59AF;
+  }
+  ul{
+  	width: 100%;
+  	margin-top: 10px;
+  	padding: 20px 30px;
+  	height: 90%;
+  	overflow: scroll;
+     cursor:pointer;
+      /*margin-right: -15px;*/
+  }
+  ::-webkit-scrollbar{
+  	display:none;
+	}
+  /*.element::-webkit-scrollbar {display:none}*/
+  .ul1{
+		box-shadow:0 -3px 20px #E7C5AD;
+		border-radius: 10px;
+  }
+  .ul2{
+		box-shadow:0 -3px 20px #B7ADB2;
+		border-radius: 10px;
+  }
+    .ul3{
+	box-shadow:0 -3px 20px #A5ACD7;
+	border-radius: 10px;
+  }
+  li:hover{
+  	width:104%; 
+   box-shadow:0 1px 3px;
+   margin-left: -7px;
+   /*height:60px;*/
+   /*line-height: 60px;*/
+   /*position: relative;*/
+  }
+  .ul1 li{
+  	line-height: 50px;
+  	background: #F6E8DE;
+  	color: #D29774;
+  	border-radius: 10px;
+  	margin-top: 10px;
+  	box-shadow:0 1px 3px;
+  }
+   .ul2 li{
+  	line-height: 50px;
+  	background: #E3DFE0;
+  	color: #78606F;
+  	border-radius: 10px;
+  	margin-top: 10px;
+  	box-shadow:0 1px 3px;
+  }
+    .ul3 li{
+  	line-height: 50px;
+  	background: #DCDEF0;
+  	color: #4D59AF;
+  	border-radius: 10px;
+  	margin-top: 10px;
+  	box-shadow:0 1px 3px;
+  }
+  .ul2 li ,.ul3 li{
+  	display: flex;
+  }
+  .ul2 li span, .ul3 li span{
+  		flex: 1;
+  }
+	</style>
+	<script src="https://cdn.bootcss.com/vue/2.5.8/vue.js"></script>
+	<script src="https://cdn.bootcss.com/axios/0.17.1/axios.min.js"></script>
+</head>
+
+<body>
+	<div id="app">
+<first ></first>
+<second></second>
+<third></third>
+	</div>
+<script>
+var bus=new Vue({
+	data:{
+		Adata: []
+	},
+	created(){
+	   var that= this;
+	   axios.get('./data.json')
+		.then(res=>{ 
+	          that.Adata=res.data.menu;
+      bus.$emit('get-data',that.Adata)
+		})
+		.catch(err=>{ console.log(err) })
+
+	}
+
+})
+// console.log(bus.Adata);
+var firstTop={
+      template:`<h3 class="title1">菜谱</h3>`
+}
+var firstBody={
+	data(){
+		return{
+		 items:[]
+		}
+    
+	},
+	template:`<ul class="ul1"><li v-for="(item,index) in items" @click="click1(item,index)">{{item.menuName}}</li></ul>`,
+	mounted(){
+	
+ // this.items=bus.Adata
+ 	 // console.log(bus.Adata)
+ 	 var _this=this;
+ 	 bus.$on('get-data',function(val){
+ 	 	_this.items=val
+ 	 	console.log(val)
+ 	 })
+	},
+	methods:{		
+		click1(item,index){
+			  // var that1= this;
+			 // console.log(that1.item);
+			 var cook=item.menuEllip
+            bus.$emit('get-data1',cook)
+		}
+
+	}
+
+}
+var first={
+	template:`<div class="first"><firstTop></firstTop><firstBody></firstBody></div>`,
+    components:{
+		'firstTop':firstTop,
+		'firstBody':firstBody
+	}
+}
+var secondTop={
+	template:`<h3 class="title2">原料</h3>`
+}
+var secondBody={
+	data(){
+		return{
+        raw:''
+		}
+	},
+	template:`<ul class="ul2"><li v-for="(item1,index) in raw" @click="click2(item1,index)"><span>{{item1.menuEllip}}</span><span>￥{{item1.price}}</span></li></ul>`,
+	created(){
+		 var _this=this;
+ 	 bus.$on('get-data1',function(val){
+ 	 	_this.raw=val
+ 	 	// console.log(raw)
+ 	 })
+	},
+	methods:{
+		click2(item,index){
+			// console.log(item);
+			  bus.$emit('get-data2',item)
+		}
+	}
+}
+var second={
+	template:`<div class="second"><secondTop></secondTop><secondBody></secondBody></div>`,
+	components:{
+		'secondTop':secondTop,
+		'secondBody':secondBody
+	}
+}
+var thirdTop={
+	template:`<h3 class="title3">购物车</h3>`
+}
+var thirdBody={
+	data(){
+		return{
+        shop:[]
+		}
+	},
+	template:`<ul class="ul3" @click="c"><li v-for="item in shop"><span>{{item.menuEllip}}</span><span>￥{{item.price}}</span></li></ul>`,
+	created(){
+		 var _this=this;
+ 	 bus.$on('get-data2',function(val){
+ 	 	_this.shop.push(val)
+ 	 	console.log(val)
+ 	 })
+	},
+	methods:{
+		c(){
+			console.log(this)
+		}
+	}
+  
+}
+var third={
+	template:`<div class="third"><thirdTop></thirdTop><thirdBody></thirdBody></div>`,
+	components:{
+		'thirdTop':thirdTop,
+		'thirdBody':thirdBody
+	}
+} 
+
+
+var vm=new Vue({
+	el:'#app',
+	// data:{
+
+	// },
+	components:{
+		'third':third,
+		'first':first,
+		'second':second
+		
+	}
+})
+</script>
+</body>
+</html>
